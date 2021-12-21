@@ -1,0 +1,132 @@
+<style>
+  .product-card {
+    box-sizing: border-box;
+    float: left;
+    min-height: 1em;
+    padding-left: 2em;
+    vertical-align: top;
+    width: 25%;
+    text-align: center;
+  }
+
+  .visuallyhidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+    white-space: nowrap;
+  }
+  .center {
+    text-align: center;
+}
+  @media (min-width: 320px) and (max-width: 480px) {
+  .product-card {
+    box-sizing: border-box;
+    float: left;
+    min-height: 1em;
+    padding-left: 0;
+    vertical-align: top;
+    width: 100%;
+    text-align: center;
+    display: block;
+}
+  
+  }
+</style>
+
+{%- assign counter = 0 -%}
+{%- assign break_at = section.settings.number_of_products | plus: 0 -%}
+{%- assign current_product = product -%}
+<!-- Call Product ID ON METAFIELD WITH THIS VARIABLE Related_product -->
+{% assign rltd_id =  product.metafields.global.Related_product_id.value %}
+<!-- PRODUCT ID METAFIELD END -->
+{%- capture related_items -%}
+{% if product.id == rltd_id %}
+<!-- GIVE ANY TAG ON PRODUCT and USE THE TAG in Metafield right now using .Serum_Related_product
+E.G PRODDUCT TAG: Related_PRODUCT BASED ON PARENT PRODUCT and Show Child Product with TAGS  -->
+ {% assign rltd_tag = product.metafields.global.Serum_Related_product.value %}
+
+  {%- for product in collections.all.products -%}
+     
+   
+            {%- if product.tags contains rltd_tag -%}
+
+      <div class="product-card">
+        <div class="related-slide">
+        <a href="{{ product.url | within: collection }}">
+          <img src="{{ product.featured_image.src | img_url: '300x300' }}" alt="">
+          <h4 class="center">{{ product.title }} </h4>
+ 
+        </a>
+  {{ product.price | money }}
+        </div>
+</div>
+        {%- assign counter = counter | plus: 1 -%}
+
+        {%- if counter == break_at -%}
+          {%- break -%}
+        {%- endif -%}
+
+      {%- endif -%}
+
+  {%- endfor -%}
+      {% endif %}
+
+{%- endcapture -%}
+
+{%- assign related_items = related_items | trim -%}
+{%- unless related_items == blank -%}
+  <aside>
+    {%- if section.settings.heading -%}
+      <h2 class="center">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    {{ related_items }}
+  </aside>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Recommended products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Recommended products"
+    },
+    {
+      "type": "liquid",
+      "id": "related_tag",
+      "label": "Tag",
+      "info" : "The tag determines which products show as related products."
+    },
+    {
+      "type": "select",
+      "id": "number_of_products",
+      "label": "Number of products to show",
+      "default": "4",
+      "options": [
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "8",
+          "label": "8"
+        },
+        {
+          "value": "12",
+          "label": "12"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+
